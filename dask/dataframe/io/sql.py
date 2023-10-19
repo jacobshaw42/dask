@@ -181,11 +181,12 @@ def read_sql_query(
     lowers, uppers = divisions[:-1], divisions[1:]
     for i, (lower, upper) in enumerate(zip(lowers, uppers)):
         cond = index <= upper if i == len(lowers) - 1 else index < upper
-        if 'where' in sql.__str__().lower():
-            curr_where = re.search(r"where.*[^|group by|order by|having]", sql.__str__()).group()
+        query = sql.__str__().lower()
+        if 'where' in query:
+            curr_where = re.search(r"where.*[^|group by|order by|having]", query).group()
             curr_where1 = re.sub(r"order by.*|group by.*|having.*", "", curr_where).replace("where","")
             first = text(curr_where1)
-            sql = select(text(re.sub(r"where.*[^|group by|order by|having]","",sql.__str__().replace("SELECT ","",1))))
+            sql = select(text(re.sub(r"where.*[^|group by|order by|having]","",query.replace("select ","",1))))
             q = sql.where(sa.sql.and_(first, index >= lower, cond))
         else:
             q = sql.where(sa.sql.and_(index >= lower, cond))
